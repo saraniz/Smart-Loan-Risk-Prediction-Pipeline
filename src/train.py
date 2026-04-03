@@ -10,9 +10,15 @@ import mlflow
 import mlflow.sklearn #mlflow support sklearn models
 from sklearn.preprocessing import StandardScaler
 from mlflow.data.pandas_dataset import from_pandas
+import os
+from dotenv import load_dotenv
+import time
+
+# Load environment variables
+load_dotenv()
 
 #“Store all experiments inside this SQLite database file”
-mlflow.set_tracking_uri("sqlite:///mlflow.db")
+mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
 mlflow.set_experiment("Loan_Risk_Prediction")
 
 mlflow.set_experiment_tag(
@@ -117,7 +123,7 @@ def train(df):
             mlflow.log_metric("true_positive", tp)
 
             #log model as artifact
-            mlflow.sklearn.log_model(model, "model")
+            mlflow.sklearn.log_model(model, artifact_path="models")
 
             print(f"{name} accuracy: {acc} precision: {precision} recall: {recall} f1_score:{f1} roc_auc:{auc}")
 
@@ -142,23 +148,25 @@ def train(df):
     return best_run_id, best_metrics
 
 
-def register_model(run_id):
+# def register_model(run_id):
 
-    """
-    Registers the best model into MLflow Model Registry
-    """
+#     """
+#     Registers the best model into MLflow Model Registry
+#     """
+#     print(f"Waiting for artifacts to sync for run {run_id}...")
+#     time.sleep(5)
 
-    # Create model URI using run_id
-    model_uri = f"runs:/{run_id}/model"
+#     # Create model URI using run_id and the explicit artifact path
+#     model_uri = f"runs:/{run_id}/models"
 
-    # Register model
-    result = mlflow.register_model(
-        model_uri=model_uri,
-        name="loan_risk_model"   # Name in registry
-    )
+#     # Register model
+#     result = mlflow.register_model(
+#         model_uri=model_uri,
+#         name="loan_risk_model"   # Name in registry
+#     )
 
-    # Print confirmation
-    print(f"Model registered: {result.name}, version: {result.version}")
+#     # Print confirmation
+#     print(f"Model registered: {result.name}, version: {result.version}")
 
 
 if __name__ == "__main__":
@@ -172,4 +180,4 @@ if __name__ == "__main__":
     print(f"Best model metrics: {best_metrics}")
 
     # Step 3: Register best model
-    register_model(run_id)
+    # register_model(run_id)
