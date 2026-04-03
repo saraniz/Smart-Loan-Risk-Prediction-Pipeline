@@ -106,24 +106,6 @@ Typical setup:
 pip install dagshub
 ```
 
-In training code, configure MLflow tracking to DagsHub (replace placeholders):
-
-```python
-import mlflow
-
-mlflow.set_tracking_uri("https://dagshub.com/<username>/<repo>.mlflow")
-mlflow.set_experiment("Loan_Risk_Prediction")
-```
-
-For private repos, authenticate using your DagsHub token (environment variable approach):
-
-```bash
-set MLFLOW_TRACKING_USERNAME=<dagshub_username>
-set MLFLOW_TRACKING_PASSWORD=<dagshub_token>
-```
-
-Then rerun training and your runs will be tracked in DagsHub.
-
 ## Key Outcome
 
 I built a reproducible ML pipeline that:
