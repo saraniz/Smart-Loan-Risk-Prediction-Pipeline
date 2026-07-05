@@ -14,6 +14,42 @@ After comparing all models, the best performing model was selected and registere
 
 ---
 
+## 📐 Pipeline Architecture
+
+```mermaid
+flowchart TD
+    classDef data fill:#e3f2fd,stroke:#0d47a1,stroke-width:2px;
+    classDef process fill:#f1f8e9,stroke:#33691e,stroke-width:2px;
+    classDef tracking fill:#fff8e1,stroke:#ff6f00,stroke-width:2px;
+    classDef registry fill:#f3e5f5,stroke:#4a148c,stroke-width:2px;
+
+    RawData[(Raw Loan Data<br>financial_loan.csv)]:::data
+    ETL[ETL Pipeline<br>etl.py]:::process
+    CleanedData[(Cleaned Loan Data<br>cleaned_loan.csv)]:::data
+    
+    subgraph ModelTraining [src/train.py]
+        direction TB
+        Split[Train/Test Split & Scaling]:::process
+        Train[Train Models<br>Logistic Reg / Random Forest / XGBoost]:::process
+        Eval[Evaluate Metrics<br>Accuracy / F1 / ROC-AUC]:::process
+        Split --> Train --> Eval
+    end
+
+    MLflowLocal[(Local MLflow Tracking<br>sqlite:///mlflow.db)]:::tracking
+    DagsHub[(DagsHub Remote Tracking<br>MLflow Backend)]:::tracking
+    Registry[[MLflow Model Registry<br>loan_risk_model]]:::registry
+
+    RawData --> ETL
+    ETL --> CleanedData
+    CleanedData --> Split
+    
+    Eval -->|Log Runs| MLflowLocal
+    Eval -->|Log Runs| DagsHub
+    Eval -->|Register Best Model| Registry
+```
+
+---
+
 ## 🧠 What I Learned
 - How to structure and manage multiple ML experiments in a consistent workflow
 - How MLflow helps in tracking, comparing, and analyzing model performance effectively
